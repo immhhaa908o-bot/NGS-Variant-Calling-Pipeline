@@ -1,0 +1,9 @@
+🔹 Step 2: Create a Clean Bioinformatics Environment
+1️⃣ Create and Activate Environment
+conda create -n bioenv python=3.11
+conda activate bioenv
+
+2️⃣ Configure Conda Channels
+conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
