@@ -1,0 +1,23 @@
+Run the following commands:
+
+bwa --version
+samtools --version
+bcftools --version
+fastqc --version
+multiqc --version
+
+
+If all tools return version numbers → environment is ready ✅
+
+🧪 Summary: Essential Tools for NGS Pipeline
+#	Tool	Purpose
+1	FastQC	Quality control
+2	Trimmomatic	Read trimming
+3	BWA	Alignment
+4	Samtools	BAM/SAM processing
+5	Picard	Duplicate handling
+6	Bedtools	Genomic interval operations
+7	Bcftools	Variant calling
+8	HTSlib	Core genomics support
+9	Tabix	VCF indexing
+10	MultiQC	QC report aggregation
