@@ -1,0 +1,26 @@
+1️⃣ Download Miniconda
+
+Copy and paste the following command exactly as it is:
+
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+2️⃣ Install Miniconda
+bash Miniconda3-latest-Linux-x86_64.sh
+
+
+During installation:
+
+Press ENTER to continue
+
+Type yes to accept the license agreement
+
+Press ENTER to confirm the default installation path
+
+3️⃣ Activate Conda
+
+After installation finishes:
+
+source ~/.bashrc
+
+4️⃣ Verify Conda Installation
+conda --version
