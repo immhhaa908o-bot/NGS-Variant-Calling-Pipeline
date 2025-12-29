@@ -1,0 +1,219 @@
+Step 1
+
+fastqc SRR1950790_1.fastq SRR1950790_2.fastq -o fastqc_raw
+
+Step 2: Trimming – Trimmomatic
+Objective:
+
+Remove:
+
+Poor quality bases from the end of the read
+
+Adapters
+
+Excessively short reads
+
+Correct alignment preparation (BWA)
+
+trimmomatic PE -threads 4 -phred33 \
+SRR1950790_1.fastq SRR1950790_2.fastq
+trimmed/SRR1950790_1_paired.fastq trimmed/SRR1950790_1_unpaired.fastq
+trimmed/SRR1950790_2_paired.fastq trimmed/SRR1950790_2_unpaired.fastq SLIDINGWINDOW: 4:20 MINLEN: 36
+
+🔬 Step 3: BWA INDEX
+
+Objective: To convert the FASTA (genomic reference) file into a set of indexed files that BWA can understand, enabling it to perform fast and accurate alignment of FASTQ reads.
+
+📌 Before you begin: Make sure the reference file exists.
+
+You usually have a folder like this:
+
+bio_project/reference/chr22.fa
+
+And make sure the file is in .fa or .fasta extension.
+
+✅ BWA INDEX Code
+
+Execute inside the reference folder:
+
+cd ~/bio_project/reference
+bwa index chr22.fa
+
+Step 4: BWA MEM (Alignment)
+
+🎯 Objective
+
+To match the reads in FASTQ with the genomic reference (chr22.fa) and determine the location of each read in the genome.
+
+🧱 Full Code (for Paired-end Reads)
+
+Go to the alignments folder:
+
+cd ~/bio_project/alignments
+
+And run the command:
+
+bwa mem -t 4 ../reference/chr22.fa \
+../trimmed/SRR1950790_1_paired.fastq
+../trimmed/SRR1950790_2_paired.fastq
+> SRR1950790.sam
+
+Step 5
+
+Step 5: Picard MarkDuplicates
+
+After we performed the alignment using BWA MEM
+
+We now have a SAM file.
+
+Now we need to process the file to remove the duplicate reads.
+
+🎯 What is the purpose of this step?
+
+In the NGS experiment, sometimes the PCR machine copies the same sample more than once as duplicate reads. These readings introduce bias and corrupt the following calculations:
+
+Variant Calling
+
+Depth Calculation
+
+Allele Frequency
+
+Mapping Quality
+
+Step Order Before Picard
+
+First:
+
+1) Convert SAM → BAM
+`samtools view -S -b SRR1950790.sam > SRR1950790.bam`
+
+2) Sort BAM
+`samtools sort SRR1950790.bam -o SRR1950790.sorted.bam`
+
+3) Create an Index for BAM
+`samtools index SRR1950790.sorted.bam`
+
+Step 6 — Index + Depth QC + Alignment Statistics
+
+Step 7: Varia
+
+This step depends on:
+
+The final BAM file after:
+
+Sorting
+
+Removing Duplicates (rmdup)
+
+Creating an Index (.bai)
+
+You have:
+
+SRR1950790.rmdup.bam
+SRR1950790.rmdup.bam.bai
+chr22.fa
+
+First command: mpileup
+
+This command reads all the BAM rules and converts them into a format ready for calling.
+
+bcftools mpileup -Ou \
+
+-f ../reference/chr22.fa \
+SRR1950790.rmdup.bam \
+
+> raw.bcf
+
+What is produced?
+
+✔ File: raw.bcf
+This contains all the positions with the read information.
+
+Step 8 — Filtering + Annotation
+
+After obtaining:
+
+variants.vcf
+
+Now we need to:
+
+Filter mutations (by quality and depth)
+
+Produce a clean VCF
+
+Then annotate the mutations (determine if they are harmful / missense / nonsense, etc.)
+
+8.1 — VCF Filtering (QUAL ≥ 20 and INFO/DP ≥ 10) — The definitive solution
+awk '
+BEGIN {OFS="\t"}
+/^#/ { print; next }
+{
+split($8,info,";");
+
+dp=0;
+
+for(i in info){
+if(info[i] ~ /^DP=/){
+dp=substr(info[i],4);
+
+}
+
+}
+if($6 >= 20 && dp >= 10) print
+}
+' variants.vcf > variants.filtered.vcf
+
+✅ 8.2 - Counting the number of mutations after filtering
+grep -v "^#" variants.filtered.vcf | wc -l
+
+Explanation:
+
+This gives the number of high-quality mutations only.
+
+Step 9 — Variant Filtering + Normalization + Indexing
+
+After you get the file:
+
+variants.vcf
+
+Now we need to apply 3 basic steps:
+
+🔷 Step 1 — Filtering the variants (bcftools filter)
+
+Objective: To remove low-quality mutations.
+
+bcftools filter -i 'QUAL>20 && DP>10' variants.vcf > variants.filtered.vcf
+
+Check stats
+
+To see clear statistics:
+
+bcftools stats variants.norm.vcf.gz > stats.txt
+
+The stats.txt file contains:
+
+Number of SNPs
+
+Number of INDELs
+
+Transitions/Transversions
+
+Depth distribution
+
+Base quality metrics
+
+Step 10 — Annotation (Explaining mutations and their biological significance)
+
+This step helps you determine:
+
+Is the mutation pathogenic?
+
+Which gene does it affect?
+
+What is its effect? ​​Loss/Gain
+
+Which base to which base?
+
+Does it cause a disease (ClinVar)?
+
+Is it rare or common (gnomAD)?
