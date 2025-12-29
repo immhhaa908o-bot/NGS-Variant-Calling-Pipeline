@@ -1,0 +1,104 @@
+🔹 Step 1: Install Miniconda (From Scratch)
+1️⃣ Download Miniconda
+
+Copy and paste the following command exactly as it is:
+
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+2️⃣ Install Miniconda
+bash Miniconda3-latest-Linux-x86_64.sh
+
+
+During installation:
+
+Press ENTER to continue
+
+Type yes to accept the license agreement
+
+Press ENTER to confirm the default installation path
+
+3️⃣ Activate Conda
+
+After installation finishes:
+
+source ~/.bashrc
+
+4️⃣ Verify Conda Installation
+conda --version
+
+
+If Conda prints a version number, installation was successful ✅
+
+🔹 Step 2: Create a Clean Bioinformatics Environment
+1️⃣ Create and Activate Environment
+conda create -n bioenv python=3.11
+conda activate bioenv
+
+2️⃣ Configure Conda Channels
+conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
+
+🔹 Step 3: Install the 10 Essential NGS Tools
+
+These tools represent the standard NGS pipeline used in universities and research labs worldwide.
+
+🟦 1. FastQC – Quality Control
+conda install fastqc=0.11.9
+
+
+Analyzes FASTQ file quality.
+
+🟧 2. Trimmomatic – Read Trimming
+conda install trimmomatic=0.39
+
+
+Removes adapters and low-quality bases.
+
+🟦 3. BWA – Sequence Alignment
+conda install bwa=0.7.17
+
+
+Aligns sequencing reads to a reference genome.
+
+🟧 4. Samtools – BAM/SAM Processing
+conda install samtools=1.17
+
+
+Used for sorting, indexing, and manipulating BAM files.
+
+🟦 5. Picard Tools – Duplicate Handling
+conda install picard=2.27.4
+
+
+Accurate duplicate marking and removal.
+
+🟧 6. Bedtools – Genomic Intervals
+conda install bedtools=2.30.0
+
+
+Operations on genomic regions (BED/GFF/VCF).
+
+🟦 7. Bcftools – Variant Calling
+conda install bcftools=1.17
+
+
+Variant calling, filtering, and VCF manipulation.
+
+🟧 8. HTSlib – Core Genomics Library
+conda install htslib=1.17
+
+
+Low-level library for BAM/VCF handling.
+
+🟦 9. Tabix – VCF Indexing
+conda install tabix
+
+
+Indexes compressed VCF and BED files.
+
+🟧 10. MultiQC – Report Aggregation
+conda install multiqc
+
+
+Combines all QC reports into a single summary.
